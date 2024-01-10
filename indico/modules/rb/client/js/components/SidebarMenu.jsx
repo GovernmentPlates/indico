@@ -50,6 +50,7 @@ function SidebarMenu({
   gotoBookingsInMyRooms,
   gotoMyRoomsList,
   gotoMyBlockings,
+  gotoUserBookings,
   gotoRBAdminArea,
   toggleAdminOverride,
   visible,
@@ -84,6 +85,12 @@ function SidebarMenu({
       text: Translate.string('My Blockings'),
       onClick: gotoMyBlockings,
       onlyIf: !hideOptions.myBlockings,
+    },
+    {
+      key: 'user_bookings',
+      icon: 'calendar alternate outline',
+      text: Translate.string('User Bookings'),
+      onClick: gotoUserBookings,
     },
     {
       key: 'isAdmin',
@@ -161,6 +168,7 @@ SidebarMenu.propTypes = {
   gotoBookingsInMyRooms: PropTypes.func.isRequired,
   gotoMyRoomsList: PropTypes.func.isRequired,
   gotoMyBlockings: PropTypes.func.isRequired,
+  gotoUserBookings: PropTypes.func.isRequired,
   gotoRBAdminArea: PropTypes.func.isRequired,
   toggleAdminOverride: PropTypes.func.isRequired,
   visible: PropTypes.bool,
@@ -222,6 +230,10 @@ export default connect(
       dispatch(globalActions.resetPageState('blockings'));
       dispatch(blockingsActions.setFilters({myBlockings: true}, false));
       dispatch(pushRoute('/blockings?my_blockings=true'));
+    },
+    gotoUserBookings() {
+      dispatch(globalActions.resetPageState('userBookings'));
+      dispatch(pushRoute('/user-bookings'));
     },
     gotoRBAdminArea() {
       dispatch(pushRoute('/admin'));

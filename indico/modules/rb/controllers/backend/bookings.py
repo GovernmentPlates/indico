@@ -6,7 +6,7 @@
 # LICENSE file for more details.
 
 import uuid
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 
 import dateutil
 from flask import jsonify, request, session
@@ -43,7 +43,7 @@ from indico.modules.rb.util import (WEEKDAYS, check_impossible_repetition, check
                                     serialize_availability, serialize_booking_details, serialize_occurrences)
 from indico.util.date_time import now_utc, overlaps, server_to_utc, utc_to_server
 from indico.util.i18n import _
-from indico.util.marshmallow import ModelField
+from indico.util.marshmallow import ModelField, Principal
 from indico.util.spreadsheets import send_csv, send_xlsx
 from indico.web.args import use_args, use_kwargs, use_rh_args
 from indico.web.flask.util import url_for
@@ -378,6 +378,35 @@ class RHMyUpcomingBookings(RHRoomBookingBase):
              .order_by(ReservationOccurrence.start_dt.asc())
              .limit(5))
         return jsonify(reservation_occurrences_schema.dump(q))
+
+
+class RHBookingsByUser(RHRoomBookingBase):
+    @use_kwargs({
+        'start_date': fields.DateTime(required=False, load_default=lambda: date.today()),
+        'end_date': fields.DateTime(required=False, load_default=None),
+        'user': Principal(required=True),
+        'opt_filter_booked_for': fields.Bool(required=False, load_default=False)
+    }, location='query')
+    def _process(self, user, start_date, end_date, opt_filter_booked_for):
+        # Ensure the dates are handled properly
+        start_date = start_date or datetime.now() - timedelta(days=365)
+        end_date = end_date or datetime.now() + timedelta(days=365)
+
+        print(f'*** {start_date=}, {end_date=}')
+
+        q = (db.session.query(ReservationOccurrence)
+             .join(Reservation, ReservationOccurrence.reservation_id == Reservation.id)
+             .join(Room, Reservation.room_id == Room.id)
+             .filter(
+                 Reservation.booked_for_user == user,
+                 ReservationOccurrence.is_valid,
+                 ~Reservation.is_cancelled,
+                 ~Reservation.is_rejected,
+                 ReservationOccurrence.start_dt.between(start_date, end_date)
+             )
+             .order_by(ReservationOccurrence.start_dt.desc()))
+
+        return jsonify(reservation_occurrences_schema.dump(q.all()))
 
 
 class RHMatchingEvents(RHRoomBookingBase):

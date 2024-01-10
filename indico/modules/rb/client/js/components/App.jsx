@@ -18,6 +18,7 @@ import {Translate} from 'indico/react/i18n';
 import {ConditionalRoute} from 'indico/react/util';
 
 import * as globalActions from '../actions';
+import UserBookings from '../common/bookings/UserBookings';
 import {actions as configActions} from '../common/config';
 import {LinkBar} from '../common/linking';
 import {actions as mapActions} from '../common/map';
@@ -107,6 +108,11 @@ class App extends React.Component {
               />
               <ConditionalRoute path="/calendar" component={Calendar} active={!isInitializing} />
               <ConditionalRoute path="/admin" component={AdminArea} active={!isInitializing} />
+              <ConditionalRoute
+                path="/user-bookings"
+                component={UserBookings}
+                active={!isInitializing}
+              />
               {renderExtraRoutes(isInitializing)}
               <Route
                 render={() => (

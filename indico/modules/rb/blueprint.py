@@ -57,6 +57,7 @@ _bp.add_url_rule('/api/user/', 'user_info', misc.RHUserInfo)
 _bp.add_url_rule('/api/user/favorite-rooms/', 'favorite_rooms', rooms.RHRoomFavorites)
 _bp.add_url_rule('/api/user/favorite-rooms/<int:room_id>', 'favorite_rooms', rooms.RHRoomFavorites,
                  methods=('PUT', 'DELETE'))
+_bp.add_url_rule('/api/user/bookings', 'bookings_by_user', bookings.RHBookingsByUser)
 
 # Calendar/timeline
 _bp.add_url_rule('/api/calendar', 'calendar', bookings.RHCalendar, methods=('GET', 'POST'))

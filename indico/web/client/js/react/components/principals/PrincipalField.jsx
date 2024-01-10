@@ -79,6 +79,8 @@ const PrincipalField = props => {
   }, [details, value]);
 
   const handleAddItem = principal => {
+    console.log(principal);
+    console.log(principal.userId);
     onChange(principal.identifier);
     markTouched();
   };
